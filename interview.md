@@ -1,91 +1,102 @@
-# Interview
+# Interview Guide
 
-Always run this interview first, using the `AskUserQuestion` tool for every
-question (interactive menu). Never write the questions as plain text.
+Use the `AskUserQuestion` tool for every question below. Never print these
+questions as plain text. Ask each batch in ONE tool call (up to 4 questions per
+call). Questions are shown in the user's language; the documents stay in English.
 
-The tool allows up to 4 questions per call and 4 options per question. The user
-can always pick "Other" to type a custom answer.
-
-Skip a question only if the user already answered it explicitly in their message
-or in `$ARGUMENTS`.
-
-## Batch 1 - Scope (first call, always)
-
-Call `AskUserQuestion` with these questions in ONE call:
+## Batch 1 - Scope and sources
 
 1. header `Deliverable`: "What do you want to generate?"
-   - README: a project README
-   - ADR: an Architecture Decision Record
-   - Diagram: Mermaid architecture diagram(s)
-   - Everything: README + ADR + diagram
+   - README
+   - ADR (Architecture Decision Record)
+   - Architecture diagram
+   - Everything (README + ADR + diagram)
 
-2. header `Strictness`: "How strictly should I follow your documents?"
-   - Strict: follow your documents to the letter, nothing added
-   - Guided: your documents set the rules, I may add styling
-   - Free: your documents are inspiration, I use my templates
+2. header `Sources`: "Is there existing documentation I must follow (subject, spec, guidelines)?"
+   - Yes, a file in the project (I will give the path)
+   - Yes, a URL or text I will paste
+   - No, use your best judgment
 
-3. header `Sources`: "Do you have existing documentation I must base this on?"
-   - Yes, local files: I give file or folder paths
-   - Yes, URLs: I give links
-   - Yes, both: files and links
-   - No: use the codebase only
+3. header `Strictness`: "How strictly must I follow those documents?"
+   - Strict: follow the document exactly, add nothing extra
+   - Flexible: follow the document, I may propose extra sections for approval
 
-4. header `Audience`: "Who will read this documentation?"
-   - Developers: contributors and maintainers
-   - Users: people who install and use the project
-   - Both: mixed audience
-   - Clients: non-technical or business readers
+4. header `Visual style`: "How should it look? (never changes the sections)"
+   - Showcase: banner, badges, animations, colors
+   - Clean: simple formatting, no decorations
+   - Minimal: plain text, no badges
 
-## Batch 2 - Sources and details (second call)
+If the user picks "Yes, a file" or "Yes, a URL or text", ask right after, in
+plain chat, for the path or the content, and wait for the answer. Then read it
+fully. These documents have priority over this skill.
 
-Only if the user answered "Yes" to Sources. Ask the paths or URLs through
-`AskUserQuestion` with a question like: "Which documents should I use? Choose
-'Other' to type the paths or URLs, separated by commas." with options such as:
-- docs/ folder: use the docs directory
-- README.md and CONTRIBUTING.md: use the existing root docs
-- I will type the paths: use "Other"
+## Batch 2 - Content (only for what was selected)
 
-Then read every listed document in full (see Source Registry in SKILL.md).
+For a README:
+1. header `Audience`: "Who will read it?"
+   - Evaluators / reviewers
+   - Developers / contributors
+   - End users
+   - Recruiters / public portfolio
 
-Depending on the Deliverable, add questions (same call, max 4):
+2. header `Language of examples`: "Anything specific to highlight?"
+   - Installation and usage
+   - Technical architecture
+   - Features and screenshots
+   - Nothing specific
 
-**If README or Everything:**
-- header `Style`: "Which README style?" (only if Strictness is not Strict)
-  - Showcase: badges, colors, animated header
-  - Minimal: clean and simple
-  - Classic: standard sections
-  - Follow my docs: copy the style from my documents
-- header `Sections`: "Which sections do you need?" multiSelect true
-  - Install and usage
-  - Architecture
-  - API reference
-  - Contributing and license
+For an ADR:
+1. header `Decision`: "Which decision should be recorded?"
+   - I will describe it
+   - Detect it from the code
+2. header `Status`: "What is its status?"
+   - Proposed
+   - Accepted
+   - Deprecated
 
-**If ADR or Everything:**
-- header `Decision`: "What decision should the ADR record? Choose 'Other' to type it."
-  - Detect it from the codebase
-  - I will describe it
-- header `ADR status`: "Status of this ADR?"
-  - Proposed
-  - Accepted
-  - Deprecated
-  - Superseded
+For a diagram:
+1. header `Diagram type`: "Which diagram?"
+   - Architecture overview
+   - Class diagram
+   - Sequence diagram
+   - Entity-relationship
 
-**If Diagram or Everything:**
-- header `Diagram type`: "Which diagrams?" multiSelect true
-  - System overview
-  - Sequence
-  - Data model (ER)
-  - Deployment
+2. header `Format`: "Which format?"
+   - Mermaid (renders on GitHub)
+   - ASCII
+   - Both
 
-## Batch 3 - Confirmation
+## Batch 3 - Visual details (only if Visual style = Showcase)
 
-Print a short summary of all answers as text, then call `AskUserQuestion`
-header `Confirm`: "Ready to build the outline with these settings?"
-- Continue to outline: show me the section plan
-- Modify: I want to change something
-- Cancel: stop here
+1. header `Palette`: "Which color palette?"
+   - Yellow / dark (retro arcade)
+   - Blue / purple (modern)
+   - Green / dark (terminal)
+   - Auto-pick from the project theme
 
-Proceed to the outline only on "Continue to outline". If "Modify", ask via a
-menu which setting to change and redo that question only. The interview does
-NOT lead directly to writing: the outline approval step comes next.
+2. header `Animation`: "Which animation?"
+   - Typing text animation
+   - Animated wave banner
+   - Both
+   - None
+
+## Batch 4 - Final recap
+
+Display a recap in the chat, then call `AskUserQuestion`:
+
+- header `Confirm`: "Is this correct?"
+  - Continue to the outline
+  - Modify a setting
+  - Cancel
+
+On "Modify a setting": ask via a menu which setting to change, then redo ONLY
+that question. On "Continue to the outline": go to Phase 4 of SKILL.md. The
+interview NEVER leads directly to writing.
+
+## Reminders
+
+- If the user already gave an answer in their message (for example `/doc readme`),
+  skip that question.
+- Never invent answers. Never assume strictness: always ask.
+- If a source document exists, its requirements are collected in the Source
+  Registry and override every default of this skill.

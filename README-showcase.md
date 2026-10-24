@@ -1,190 +1,77 @@
-# Showcase README Model
+# README Showcase Style
 
-Copy everything between the `START` and `END` markers into README.md, then
-replace every `{{PLACEHOLDER}}`. Color values are hex WITHOUT the `#`.
+Read this file BEFORE writing a README when the user chose the Showcase style.
+This file controls PRESENTATION only. It never adds, removes or renames a
+section. The section list always comes from the user's source document.
 
-Palette placeholders:
-- `{{COLOR_MAIN}}` main brand color (e.g. 6C63FF)
-- `{{COLOR_ACCENT}}` secondary color (e.g. 00C896)
-- Header gradient `customColorList`: 0 to 29 preset gradients; use `color=gradient`
-  with `customColorList=6,11,20` (purple/blue), `=12,14,26` (green/cyan),
-  `=2,5,24` (orange/red), or `color=0:{{COLOR_MAIN}},100:{{COLOR_ACCENT}}`
-  for a custom two-color gradient.
+## Order of the top of the file
 
-<!-- START -->
+1. If the source document imposes an exact first line, write it FIRST, alone,
+   as the very first line (keep its required formatting, for example italics).
+2. Then the visual header (banner, badges), centered.
+3. Then the table of contents (navigation only, not a section).
+4. Then the sections of the approved outline.
+
+Example for the 42 subject:
 
 ```markdown
-<div align="center">
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:{{COLOR_MAIN}},100:{{COLOR_ACCENT}}&height=240&section=header&text={{PROJECT_NAME}}&fontSize=64&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc={{TAGLINE_URL_ENCODED}}&descSize=20&descAlignY=58" alt="{{PROJECT_NAME}}" width="100%"/>
-
-<a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1200&color={{COLOR_MAIN}}&center=true&vCenter=true&width=700&lines={{TYPING_LINE_1}};{{TYPING_LINE_2}};{{TYPING_LINE_3}}" alt="Typing animation"/>
-</a>
-
-<br/>
-
-<img src="https://img.shields.io/badge/license-{{LICENSE}}-{{COLOR_MAIN}}?style=for-the-badge" alt="License"/>
-<img src="https://img.shields.io/github/v/release/{{OWNER}}/{{REPO}}?style=for-the-badge&color={{COLOR_ACCENT}}" alt="Release"/>
-<img src="https://img.shields.io/github/actions/workflow/status/{{OWNER}}/{{REPO}}/{{CI_FILE}}?style=for-the-badge" alt="Build"/>
-<img src="https://img.shields.io/github/stars/{{OWNER}}/{{REPO}}?style=for-the-badge&color=FFB400" alt="Stars"/>
-
-<br/><br/>
-
-**[Features](#-features)** &nbsp;•&nbsp;
-**[Quick Start](#-quick-start)** &nbsp;•&nbsp;
-**[Usage](#-usage)** &nbsp;•&nbsp;
-**[Architecture](#-architecture)** &nbsp;•&nbsp;
-**[Contributing](#-contributing)**
-
-</div>
-
-<br/>
-
-<div align="center">
-  <img src="docs/assets/demo.gif" alt="{{PROJECT_NAME}} demo" width="780"/>
-  <!-- TODO: add docs/assets/demo.gif or remove this block -->
-</div>
-
----
-
-## ✨ Features
-
-<table>
-  <tr>
-    <td align="center" width="33%">
-      <h3>⚡</h3>
-      <b>{{FEATURE_1_TITLE}}</b><br/>
-      <sub>{{FEATURE_1_DESC}}</sub>
-    </td>
-    <td align="center" width="33%">
-      <h3>🔒</h3>
-      <b>{{FEATURE_2_TITLE}}</b><br/>
-      <sub>{{FEATURE_2_DESC}}</sub>
-    </td>
-    <td align="center" width="33%">
-      <h3>🧩</h3>
-      <b>{{FEATURE_3_TITLE}}</b><br/>
-      <sub>{{FEATURE_3_DESC}}</sub>
-    </td>
-  </tr>
-</table>
-
----
-
-## 🛠 Tech Stack
+*This project has been created as part of the 42 curriculum by login1, login2.*
 
 <div align="center">
 
-<!-- One badge per real technology. Pattern:
-<img src="https://img.shields.io/badge/{{TECH}}-{{HEX}}?style=for-the-badge&logo={{SIMPLEICONS_SLUG}}&logoColor=white" alt="{{TECH}}"/>
--->
-{{STACK_BADGES}}
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FFD800,100:FF8C00&height=200&section=header&text=Pac-Man&fontSize=70&fontColor=1a1a1a&animation=fadeIn&fontAlignY=38" width="100%"/>
+
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&pause=1000&color=FFD800&center=true&vCenter=true&width=600&lines=A+Pac-Man+clone+in+Python;Built+with+pygame;Four+ghosts.+One+maze." alt="Typing animation"/>
+
+![Python](https://img.shields.io/badge/Python-3.13-FFD800?style=for-the-badge&logo=python&logoColor=1a1a1a)
+![pygame](https://img.shields.io/badge/pygame-2.x-FF8C00?style=for-the-badge)
+![License](https://img.shields.io/badge/42-curriculum-1a1a1a?style=for-the-badge)
 
 </div>
-
----
-
-## 🚀 Quick Start
-
-> [!NOTE]
-> **Prerequisites:** {{PREREQUISITES}}
-
-```bash
-{{INSTALL_COMMANDS}}
 ```
 
----
+## Building blocks
 
-## 📖 Usage
+### Banner (animated wave)
+`https://capsule-render.vercel.app/api?type=waving&color=0:<HEX1>,100:<HEX2>&height=200&section=header&text=<Title>&fontSize=70&animation=fadeIn`
+Use `type=waving`, `type=venom` or `type=rect`. Put the same API with
+`section=footer` at the very end of the file for a matching footer.
 
-```{{LANG}}
-{{USAGE_EXAMPLE}}
-```
+### Typing animation
+`https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&pause=1000&color=<HEX>&center=true&vCenter=true&width=600&lines=Line+one;Line+two`
+Spaces are written as `+`. Separate lines with `;`.
 
-<details>
-<summary><b>⚙️ Configuration</b></summary>
+### Badges (shields.io)
+`https://img.shields.io/badge/<Label>-<Value>-<HEX>?style=for-the-badge&logo=<logo>&logoColor=<HEX>`
+Only add badges that are true: language and version from the real config,
+tools actually used. Never invent a badge (no fake build status or coverage).
+A CI badge is allowed only if the workflow file really exists.
 
-<br/>
+### Table of contents
+A short linked list of the existing sections, using GitHub anchors. It is
+navigation, not a new section: do not give it a heading.
 
-| Variable | Description | Default | Required |
+### Collapsible blocks
+Use `<details><summary>...</summary> ... </details>` inside an existing section
+to hide long content (full config table, long command lists).
+
+### Section markers
+A single emoji at the start of a heading is allowed if the user chose
+Showcase. Keep the title text identical to the approved title.
+
+## Palettes
+
+| Palette | Color 1 | Color 2 | Text |
 |---|---|---|---|
-| `{{ENV_VAR}}` | {{ENV_DESC}} | `{{ENV_DEFAULT}}` | {{YES_NO}} |
+| Yellow / dark | FFD800 | FF8C00 | 1a1a1a |
+| Blue / purple | 4facfe | 7b2ff7 | ffffff |
+| Green / dark | 00ff9c | 0b3d2e | ffffff |
 
-</details>
+## Rules
 
----
-
-## 🏗 Architecture
-
-{{ARCHITECTURE_SENTENCE}}
-
-<details>
-<summary><b>📐 View the architecture diagram</b></summary>
-
-<br/>
-
-```mermaid
-{{MERMAID_DIAGRAM}}
-```
-
-</details>
-
-<details>
-<summary><b>📁 Project structure</b></summary>
-
-<br/>
-
-```
-{{TREE}}
-```
-
-</details>
-
----
-
-## 🗺 Roadmap
-
-- [x] {{DONE_ITEM}}
-- [ ] {{TODO_ITEM}}
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork the repository
-2. Create your branch: `git checkout -b feat/amazing-feature`
-3. Commit your changes: `git commit -m "feat: add amazing feature"`
-4. Push and open a Pull Request
-
-> [!TIP]
-> Run `{{TEST_COMMAND}}` before opening a PR.
-
----
-
-## 📄 License
-
-Distributed under the {{LICENSE}} License. See [`LICENSE`](LICENSE) for details.
-
-<br/>
-
-<div align="center">
-
-Made with ❤️ by [{{AUTHOR}}](https://github.com/{{OWNER}})
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:{{COLOR_MAIN}},100:{{COLOR_ACCENT}}&height=120&section=footer" alt="footer" width="100%"/>
-
-</div>
-```
-
-<!-- END -->
-
-## Placeholder rules
-- `{{TAGLINE_URL_ENCODED}}`: spaces as `%20`.
-- `{{TYPING_LINE_n}}`: spaces as `+`, 3 short selling points of the project.
-- `{{OWNER}}` / `{{REPO}}`: read them from `git remote -v`. Never guess.
-- Remove badges whose data does not exist (no releases = remove the Release badge).
-- `{{STACK_BADGES}}`: only technologies actually found in the manifests.
-- Keep `<!-- TODO: -->` comments for missing assets, and list them in the final report.
+- Style never creates a section. No "Features", "Preview" or "Roadmap" heading
+  unless the outline contains it.
+- Everything in English.
+- Images and badges come from public services; add meaningful `alt` text.
+- Keep the file readable as plain text: decoration must not hide information.
+- Never leave a placeholder or TODO.
