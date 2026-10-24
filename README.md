@@ -48,6 +48,13 @@ Claude Code:
 cp -r technical-documentation-skills ~/.claude/skills/
 ```
 
+To install the `/doc` command in Claude Code, copy the command file:
+
+```bash
+mkdir -p ~/.claude/commands
+cp technical-documentation-skills/commands/doc.md ~/.claude/commands/doc.md
+```
+
 You can also ask the agent to install the skill itself: give it this repository and ask it to copy the `technical-documentation-skills` folder into its skills directory.
 
 Then trigger it from a project with a request such as:
@@ -56,6 +63,14 @@ Then trigger it from a project with a request such as:
 - "write a README"
 - "écris un ADR"
 - "génère un diagramme d'architecture"
+
+Available `/doc` commands:
+
+- `/doc readme`: generate or update the README
+- `/doc adr`: write an Architecture Decision Record
+- `/doc diagram`: generate an architecture diagram
+- `/doc all`: produce all three
+- `/doc update`: modify an existing document with surgical edits
 
 The skill starts with the interview. Answer the menus, review the outline, then approve it to generate the file.
 
