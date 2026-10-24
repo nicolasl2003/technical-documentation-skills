@@ -9,6 +9,113 @@ allowed-tools: AskUserQuestion, Read, Glob, Grep, Write, Edit, Bash
 
 ## STOP - READ THIS FIRST
 
+## Mode detection (run before Phase 1)
+
+Before any interview question, check whether the target document already exists
+(`Glob` for `README.md` at the project root; for ADRs, `docs/adr/*.md`).
+
+- If NO existing document: run the normal flow (Phase 1 onward).
+- If a document exists: call `AskUserQuestion` with ONE question:
+  - header `Mode`: "A README already exists. What do you want to do?"
+    - Update it (change specific parts only)
+    - Regenerate it from scratch
+    - Cancel
+
+  - "Update it" runs the **Update flow** below.
+  - "Regenerate it from scratch" runs the normal flow. Warn in the question
+    description that the current file will be overwritten.
+  - "Cancel" stops.
+
+If the user's request already says "modifier", "update", "change", "ajoute",
+"corrige" about an existing document, skip the Mode question and go straight
+to the Update flow.
+
+## Update flow (existing document)
+
+The goal is a surgical change. Everything the user did not ask to change must
+stay byte-for-byte identical.
+
+**Hard rules:**
+- NEVER use `Write` on an existing document in Update mode. Use `Edit` only,
+  on the exact section being changed.
+- NEVER reformat, reorder, retitle or rewrite untouched sections.
+- NEVER touch the mandatory first line of a README.
+- ONE question per `AskUserQuestion` call.
+- Source documents and Strict mode still apply: if the user chose Strict, read
+  the source documents again and refuse (with a one-sentence explanation) any
+  change that contradicts them, unless the user insists.
+
+**Step U1 - Read and map.**
+Read the existing document completely. Build the list of its sections by
+reading the `##` and `###` headings. Do not analyze the codebase yet.
+
+**Step U2 - Source documents (only if the change needs them).**
+If the user wants Strict compliance, run Batch 1b of `interview.md` (document
+picker) once, read the selected documents, and keep their requirements active.
+Otherwise skip this step.
+
+**Step U3 - What to do (menu).**
+Call `AskUserQuestion` with ONE question:
+- header `Action`: "What do you want to do with the README?"
+  - Modify an existing section
+  - Add a new section
+  - Remove a section
+  - Improve the visual style only
+
+**Step U4 - Section picker (menu).**
+For "Modify" or "Remove": call `AskUserQuestion` with ONE question listing the
+existing section titles read in U1, 4 per page, with "Next sections" for more.
+
+For "Add": ask "Where?" (At the end / After a specific section / At the
+beginning), then the section picker if needed, then the new title through a
+menu of proposals with "Other" for a custom one.
+
+For "Improve the visual style only": go to U6 with scope = style only.
+
+**Step U5 - Change picker (menu), for "Modify".**
+Call `AskUserQuestion` with ONE question:
+- header `Change`: "What should change in '<section title>'?"
+  - Fix or update the information
+  - Rewrite it
+  - Make it shorter
+  - Add details
+
+Then ONE more menu for the actual content:
+- header `Details`: "What exactly?"
+  Options: 2 or 3 concrete proposals derived from reading the section and the
+  matching code (for example "Update the make targets to match the Makefile"),
+  plus the built-in "Other" for free text.
+
+Only read the code files relevant to the chosen section to verify facts.
+
+**Step U6 - Preview and confirmation (menu).**
+Show the exact before/after of the affected section in the chat (the old text
+and the new text). Then call `AskUserQuestion` with ONE question:
+- header `Confirm`: "Apply this change?"
+  - Apply
+  - Adjust it
+  - Cancel
+
+"Adjust it" goes back to U5. "Cancel" stops without touching the file.
+
+**Step U7 - Apply with Edit.**
+Apply the change with `Edit`, replacing only the targeted section. For a
+removal, delete only that section. Do not touch anything else.
+
+**Step U8 - Verify and loop.**
+Re-read the file and verify:
+1. The first line is unchanged.
+2. Only the targeted section differs from the previous version.
+3. Every fact in the changed text matches the code.
+4. No `[TODO]` or placeholder was introduced.
+
+Then call `AskUserQuestion` with ONE question:
+- header `Next`: "Do you want to change something else?"
+  - Yes, another change (back to U3)
+  - No, I am done
+
+Finish with a short summary in the user's language: which section changed.
+
 You MUST interview the user BEFORE analyzing the codebase and BEFORE writing
 any file. This is not optional.
 

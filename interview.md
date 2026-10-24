@@ -149,3 +149,19 @@ The full sequence is defined in SKILL.md, Phase 4. In short:
 Never ask the user to type a change in the chat. Never put two of these
 questions in the same call. Never mix them with questions about missing
 information.
+
+## Update mode menus
+
+When the target document already exists, the interview is replaced by the
+Update flow defined in SKILL.md ("Mode detection" and "Update flow"):
+
+1. `Mode` menu: Update it / Regenerate from scratch / Cancel
+2. `Action` menu: Modify a section / Add a section / Remove a section / Improve the visual style only
+3. `Section` menu: existing headings read from the file (paged by 4)
+4. `Change` menu, then `Details` menu (proposals + "Other" for free text)
+5. `Confirm` menu after a before/after preview
+6. `Next` menu: another change or done
+
+The general interview (deliverable, strictness, audience, visual style) is
+skipped in Update mode. Strictness is only asked if the user wants the change
+checked against a source document.
