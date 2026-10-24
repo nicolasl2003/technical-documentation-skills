@@ -1,65 +1,58 @@
 ---
 name: technical-documentation
-description: Generates technical documentation for a codebase - README files (including styled, visually rich ones), ADRs (Architecture Decision Records) and architecture diagrams (Mermaid). Starts with a short interview to understand needs and existing sources. Use when the user asks to document a project, create or update a README, write an ADR or record an architecture decision, or produce a diagram.
+description: Generates technical documentation (styled READMEs, ADRs, Mermaid architecture diagrams). ALWAYS starts by interviewing the user before writing anything. Use when the user asks to document a project, create or update a README, write an ADR, or produce a diagram.
 ---
 
-# Automatic Technical Documentation
+# Technical Documentation
+
+## STOP - READ THIS FIRST
+
+You MUST interview the user BEFORE reading the codebase in depth and BEFORE
+writing any file. This is not optional.
+
+**Your first reply when this skill is triggered MUST be the questions from
+Batch 1 of [interview.md](interview.md), and nothing else.**
+
+- Do not run scripts first.
+- Do not generate any file in your first reply.
+- Do not skip the interview because the request "seems clear".
+- Only skip a question if the user already answered it explicitly in their message.
+- After each batch of answers, ask the next batch. Then recap and wait for a "yes".
+
+If you generated a file without interviewing, you made a mistake: stop,
+apologize briefly, and start the interview.
 
 ## Language rules
 - Talk to the user in the language they use (e.g. French).
-- ALL generated documents (README, ADR, diagrams, comments) are written in English,
-  unless the user explicitly asks for another language in the interview.
-
-## Core principle
-Never invent information. All documentation must be derived from the actual
-codebase or from sources provided by the user. If something cannot be found,
-mark it with `TODO:` instead of guessing.
+- ALL generated files (README, ADR, diagrams, comments) are written in English.
 
 ## Workflow
 
-### Phase 1: Interview (mandatory)
-Before writing anything, follow [interview.md](interview.md) to ask the user
-about their needs, audience, existing documentation and visual preferences.
-Skip questions whose answers are already clear from the request or context.
-Never ask more than 5 questions at once.
+1. **Interview** (mandatory, see [interview.md](interview.md)). Batches of max 5 questions.
+2. **Recap**: summarize the answers in 3-5 lines and wait for the user to confirm.
+3. **Analyze**: run `bash scripts/analyze-project.sh`, read manifests, CI, env files,
+   and every source the user mentioned in the interview.
+4. **Write**, using the right template:
+   - README: copy [README-showcase.md](README-showcase.md) (style Showcase/Modern)
+     or [README-minimal.md](README-minimal.md) (style Minimal)
+   - ADR: [ADR-template.md](ADR-template.md)
+   - Diagrams: [diagrams.md](diagrams.md)
+5. **Verify**: commands are real, paths exist, Mermaid is valid, badge URLs use the
+   real OWNER/REPO (from `git remote -v`), nothing invented (unknown = `TODO:`).
+6. **Report** to the user (in their language): files created, TODOs left, next steps.
 
-### Phase 2: Analyze
-1. Run `bash scripts/analyze-project.sh` for a project summary
-2. Read key files: manifests, Dockerfile, CI config, env files
-3. Read every source the user pointed to during the interview
-   (existing docs, specs, notes, URLs, tickets)
-4. Browse entry points and main directories
+## README rules (important)
 
-### Phase 3: Plan and confirm
-Summarize in a few lines what you will produce (deliverables, style, language)
-and ask for a quick confirmation before generating files.
+When the chosen style is Modern or Showcase:
+- Do NOT write the README from scratch. Copy `README-showcase.md` and replace
+  every `{{PLACEHOLDER}}` with real project values.
+- Keep the animated header, typing animation, badges, navigation bar, feature grid,
+  collapsible sections and footer. Removing them defeats the purpose of the style.
+- Only remove a block if it truly does not apply (e.g. no CLI = no "Usage" CLI block).
+- Apply the color palette chosen in the interview to EVERY color placeholder.
 
-### Phase 4: Write
-Choose the matching template:
-
-| Deliverable | File to consult |
-|---|---|
-| README | [README-template.md](README-template.md) |
-| ADR | [ADR-template.md](ADR-template.md) |
-| Diagrams | [diagrams.md](diagrams.md) |
-
-If the request is broad ("document this project"), produce in this order:
-README, architecture diagram, then propose ADRs.
-
-### Phase 5: Verify
-- [ ] Install and run commands are accurate
-- [ ] Cited file paths exist
-- [ ] Mermaid diagrams are syntactically valid
-- [ ] Badge URLs and image paths are correct
-- [ ] No invented information (unknown items marked TODO)
-
-### Phase 6: Report
-Tell the user (in their language) which files were created or modified,
-which items are marked TODO, and offer next steps.
-
-## Writing rules
-- Short sentences, active voice
-- Code blocks with the language specified
-- No generic filler content
-- Never overwrite an existing README without reading it first and
-  proposing a merge or backup (`README.old.md`)
+## General rules
+- Never invent information. Mark unknowns with `TODO:`.
+- Never overwrite an existing README without reading it first and proposing a
+  backup (`README.old.md`).
+- No generic filler content.
