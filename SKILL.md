@@ -1,6 +1,7 @@
 ---
 name: technical-documentation
-description: Generates technical documentation (styled READMEs, ADRs, Mermaid architecture diagrams). ALWAYS starts with an interactive menu interview (AskUserQuestion), then shows an editable outline (section titles + summaries) for approval before writing anything. Supports a STRICT mode that follows the user's documents to the letter with zero extra content. User-provided documentation always takes priority over this skill's templates. Use when the user asks to document a project, create or update a README, write an ADR, or produce a diagram.
+description: Creates and updates technical documentation. Use when the user asks for a README, ADR, architecture diagram, project documentation, "documente", "documentation", "readme", "génère un readme", "écris un ADR", "diagramme d'architecture", or runs /doc. Starts with an interactive menu interview, then an editable outline.
+argument-hint: "[readme | adr | diagram | all]"
 allowed-tools: AskUserQuestion, Read, Glob, Grep, Write, Edit, Bash
 ---
 
@@ -18,187 +19,119 @@ any file. This is not optional.
   interactive selection menu in the terminal.
 - NEVER write the questions as plain text in your reply. If you catch yourself
   typing a numbered list of questions, stop and call the tool instead.
-- Do not run scripts, read the codebase or generate files before Batch 1 is answered.
+- Do not run scripts, read the codebase or generate files before Batch 1 is
+  answered.
 - Do not skip the interview because the request "seems clear". Only skip a
-  question if the user already answered it explicitly in their message.
+  question if the user already answered it explicitly in their message or in
+  `$ARGUMENTS`.
 
-## MENU INTERACTION RULES (critical, prevents dead ends)
-
-A menu choice is NEVER the end of an interaction. Selecting an option only
-tells you what the user wants to do. If that action needs details (which
-section, what title, what content), you MUST collect them IMMEDIATELY with
-another `AskUserQuestion` call, in the same turn.
-
-Hard rules:
-- NEVER reply with just "you selected X" or "OK, noted". That is a dead end.
-  After a menu choice you either call the next tool or perform the action.
-- NEVER say "tell me which section" in plain text and stop. Always open a menu
-  instead.
-- To collect free text (a new title, new content, a new order), call
-  `AskUserQuestion` with 2 to 3 helpful options and tell the user in the question:
-  "Choose 'Other' to type your own text". Free text always arrives through
-  the automatic "Other" field.
-- If the user answers with an empty or unclear value, re-ask with a menu. Do
-  not guess, do not continue.
-- After EVERY completed action (edit, add, remove, reorder), re-display the
-  full updated outline and reopen the Outline menu. Never end silently.
-- If a menu choice is "Cancel" or the user dismisses the menu, ask once via a
-  menu `Resume` (Resume outline editing / Approve current outline / Cancel
-  everything). Never just stop.
-
-## STRICT MODE
-
-Strict mode is chosen in the interview (Batch 2, question `Strictness`). It
-applies whenever the user's documents define content or structure.
-
-When strict mode is ON, you operate under the CONTENT CONTRACT:
-
-1. **Allowed content = user documents only.** Every section, sentence, table,
-   command and badge in the output must be traceable to (a) a user reference
-   document, (b) an explicit interview answer, or (c) a verifiable fact in the
-   codebase that fills a field the user document explicitly asks for.
-2. **No extras.** Do NOT add sections, badges, emojis, tables, animations,
-   "Features" lists, tips, roadmaps, contributing notes, license blurbs or any
-   decoration that is not in the user documents. The skill templates
-   (README-showcase.md, README-minimal.md) are NOT used in strict mode, except
-   for syntax help (valid Markdown / Mermaid).
-3. **Same structure.** Reproduce the user document's section order and
-   headings exactly, unless the user edited them in the outline.
-4. **Same wording where defined.** If the document gives fixed text or a
-   template, copy it verbatim and only fill the variable parts.
-5. **Missing info = TODO, never invention.** If a required field has no source,
-   write `TODO: <what is missing>`. Never fill gaps with plausible content.
-6. **Verification pass (mandatory before delivery).** Build a table: for each
-   section of the output, name its source. Delete anything with no source.
-   Show the user a short summary: "N sections, all traced to sources" and list
-   any deletions you made.
-7. **Outline in strict mode:** every outline section must carry a
-   `[from: <document>]` tag. A section without a tag is not allowed unless the
-   user explicitly added it during outline editing (then tag it `[user-added]`).
-
-When strict mode is OFF ("Guided" or "Free"):
-- **Guided**: user documents are the base and have priority, the skill may
-  complete missing parts using its templates, but must tag such sections
-  `[skill-default]` in the outline so the user can remove them.
-- **Free**: user documents are inspiration, the skill uses its templates freely.
-
-## SOURCE PRIORITY (absolute rule)
-
-User-provided documentation ALWAYS overrides this skill's templates, defaults
-and style suggestions. Order of authority, highest first:
-
-1. **Documents and instructions provided by the user** (docs, specs, style guides,
-   templates, existing README, wiki exports, conventions, URLs)
-2. **The user's answers during the interview and the approved outline**
-3. **The actual codebase** (manifests, config, source)
-4. **This skill's templates and defaults** (lowest priority, fallback only, and
-   forbidden in strict mode)
-
-Consequences:
-- If a user document defines a structure, tone, section order, naming or
-  template, FOLLOW IT and ignore the conflicting part of the skill templates.
-- If a user document conflicts with the codebase, do not silently choose:
-  report the conflict to the user via `AskUserQuestion`.
-- Never contradict a user document with your own assumptions.
-
-## SOURCE REGISTRY (persistent memory of reference documents)
-
-During the interview, build a registry of every reference document and URL the
-user provided, plus the "rules to follow" extracted from them and the chosen
-strictness level. Keep it for the whole session and show it in the recap.
-
-**Re-read rule**: before ANY later action that creates or modifies a document
-(outline change, section rewrite, update request, new deliverable, follow-up
-request in the same session), you MUST re-read every document in the registry
-first, then re-check your planned output against the "rules to follow".
-
-- Never rely on memory of the documents alone: read them again.
-- If a registered document changed since the last read, update the rules list
-  and tell the user what changed.
-- If a registered file or URL is no longer reachable, tell the user via
-  `AskUserQuestion` (Provide new path / Continue without / Cancel).
-- Persist the registry in `.claude/doc-sources.md` (path, URL, extracted rules,
-  strictness level) so it survives across sessions. At the start of a later
-  documentation task, if this file exists, load it and ask the user whether it
-  is still valid.
-
-## Language rules
-- Talk to the user in the language they use (e.g. French), including menu
-  labels, outline summaries and descriptions.
-- ALL generated files (README, ADR, diagrams, comments) are written in English.
-- The outline is shown in the user's language. If the user's language is not
-  English, display each title as `Title in user language -> English title used in file`.
+Language rule: all generated documents are written in **English**, even if the
+user speaks another language. Questions and menus may follow the user's
+language.
 
 ## Workflow
 
-1. **Interview** (mandatory): run the batches of [interview.md](interview.md)
-   with `AskUserQuestion`. Batch 2 collects the user's reference documents and
-   the strictness level.
-2. **Read the user's documents FIRST**: read every document and path listed in
-   Batch 2 completely, before any other analysis. Extract their rules
-   (structure, tone, templates, constraints). Save the Source Registry.
-3. **Recap**: show the answers plus the extracted rules, then confirm with
-   `AskUserQuestion` (Continue to outline / Modify / Cancel).
-4. **Analyze the codebase**: run `bash scripts/analyze-project.sh`, read
-   manifests, CI, env files. Use it only to fill facts the user documents ask for.
-5. **Outline approval (mandatory, see "Outline" below)**.
-6. **Write**: generate the file(s) strictly following the APPROVED outline.
-   - Strict mode: follow the CONTENT CONTRACT, no skill templates.
-   - Guided / Free: use the user's template if one exists, otherwise
-     [README-showcase.md](README-showcase.md) (Modern/Showcase),
-     [README-minimal.md](README-minimal.md) (Minimal), [ADR-template.md](ADR-template.md),
-     [diagrams.md](diagrams.md).
-   Do NOT add, remove or rename a section that was not in the approved outline.
-7. **Verify**: commands are real, paths exist, Mermaid is valid, badge URLs use
-   the real OWNER/REPO (from `git remote -v`), every user-document rule and every
-   approved section is respected. In strict mode, run the traceability pass.
-8. **Report** to the user (in their language): files created, rules applied from
-   their documents, TODOs left, conflicts found, sections removed by the
-   strict-mode verification (if any).
+1. **Interview** (see [interview.md](interview.md)): menu-based, always first.
+2. **Source Registry**: read and memorize every document the user provided.
+3. **Outline**: show every section title with a summary, let the user edit it,
+   wait for approval.
+4. **Generation**: write the documents, following the approved outline and the
+   chosen strictness level.
+5. **Traceability check**: verify the content against the sources, remove
+   anything unsourced (mandatory in strict mode).
+6. **Delivery**: summarize what was created and where.
+
+## Source priority (non-negotiable)
+
+When the user provides documentation (files, folders, URLs, notes), those
+documents are the **primary source of truth**. Order of priority:
+
+1. The user's documents (highest priority, always win)
+2. Explicit instructions given during the interview
+3. Facts found in the codebase (to fill gaps only)
+4. This skill's templates and defaults (lowest priority)
+
+If anything in this skill conflicts with a user document, the user document
+wins. Never override, reorder or "improve" what a user document prescribes
+(structure, section names, tone, formatting rules, naming conventions).
+
+## Source Registry
+
+After Batch 2 of the interview:
+
+1. Read EVERY document the user listed, in full, using `Read`, `Glob`, `Grep`.
+2. Build an internal registry: file path, what it prescribes (structure, rules,
+   tone, required sections, forbidden content).
+3. Save it to `.claude/doc-sources.md` so it survives context resets.
+4. **Before every creation or modification** (including each outline edit),
+   re-read the documents of the registry. Never rely on memory alone.
+5. If a document cannot be read, tell the user and ask via menu how to proceed.
+
+## Strictness levels
+
+The user picks one in the interview.
+
+| Level | Behavior |
+|---|---|
+| **Strict** | Follow the user's documents to the letter. Content contract below applies. Skill templates and design are disabled. |
+| **Guided** | User documents define structure and rules. The skill may add styling (badges, layout) as long as it does not contradict them. |
+| **Free** | User documents are inspiration. The skill templates are used as the base. |
+
+### Strict mode: content contract
+
+In strict mode:
+
+- Every section, sentence, table and badge MUST be traceable to a user document
+  or to an explicit user instruction from the interview or outline edits.
+- Do NOT add sections, badges, emojis, tables of contents, "Contributing",
+  "License", "Acknowledgements" or any filler that the documents do not ask for.
+- Do NOT use the skill's templates, animations or design.
+- Missing information is marked `[TODO: missing info]`. Never invent it.
+- Facts from the codebase are allowed ONLY to fill a section that a user
+  document explicitly requires.
+- Before delivering, run the **Traceability check**: build a table
+  `section -> source`. Delete anything without a source.
 
 ## Outline (mandatory before writing)
 
-Never write a document before the user has approved its outline.
+Never write a file before the user approves the outline.
 
 ### Step 1 - Build the outline
-Using the interview answers, the Source Registry rules and the codebase analysis,
-build the section plan. If a user document defines the structure, the outline
-MUST mirror it exactly. Otherwise derive it from the chosen style and audience.
+For each document, list every section with:
+- A **number and title**
+- A **1-2 sentence summary** of exactly what it will contain (concrete, based on
+  the sources and the codebase, not generic)
+- A **source tag**: `[from: <doc>]`, `[user-added]` or `[skill-default]`
+  (`[skill-default]` is forbidden in strict mode)
 
-### Step 2 - Display the outline
-Show it as plain text, in the user's language, in this exact format:
+### Step 2 - Display it
+Print the full outline as text, for example:
 
 ```
-OUTLINE: README.md  (Mode: Strict | Style: n/a | Sources: 2 docs)
+README.md
 
-1. <Section title>
-   -> <2-3 line summary of exactly what this section will contain,
-      including the real facts it will use.>
-   [from: <document name>]
+1. Project Title
+   -> Name "Acme API" and one-line tagline from docs/brief.md.
+   [from: docs/brief.md]
 
-2. <Section title>
-   -> <summary>
-   [from: <document name>]
-...
+2. Installation
+   -> Node 20 prerequisite and the npm commands read from package.json.
+   [from: docs/style-guide.md]
+
+3. Environment Variables
+   -> [TODO: missing info] No .env.example found, table to complete.
+   [from: docs/style-guide.md]
 ```
-
-Rules for summaries:
-- Concrete, never generic ("Explains the project" is not acceptable).
-- Mention the real data source (file, document, code module) when relevant.
-- Mark sections lacking data with `[TODO: missing info]` and say what is missing.
-- Tag the origin of every section: `[from: <doc>]`, `[user-added]`, or
-  `[skill-default]` (the last one is forbidden in strict mode).
-- Show at most 15 sections. For multi-file deliverables, show one outline per file.
 
 ### Step 3 - The Outline menu (with mandatory follow-ups)
 Call `AskUserQuestion`: header `Outline`, "What do you want to do with this outline?"
 - Approve: generate the documentation as shown
 - Edit a section: change the title or the content of one section
-- Add a section: insert a new section
-- Remove a section: delete one or more sections
+- Add or remove: add a new section or delete existing ones
+- Reorder: change the order of the sections
 
-(Reorder is handled through the "Other" field, e.g. "move 5 before 2", or
-offered as a fifth action in a second menu if the user asks.)
+The tool allows 4 options max per question, so "Add or remove" is split in a
+second menu (see Follow-up B/C below).
 
 EVERY option except "Approve" MUST be followed immediately by its follow-up
 menus below, in the same turn. Never stop after the first choice.
@@ -224,7 +157,13 @@ menus below, in the same turn. Never stop after the first choice.
    (if the new content has no source in strict mode, warn: see "Conflict check"),
    re-display the full outline, reopen the Outline menu.
 
-#### Follow-up B: "Add a section"
+#### Follow-up B/C: "Add or remove"
+Call `AskUserQuestion` header `Action`: "Add or remove sections?"
+- Add a section: insert a new section
+- Remove sections: delete one or more sections
+- Back: return to the outline menu
+
+**If "Add a section":**
 1. Call `AskUserQuestion` with 3 questions in ONE call:
    - header `Title`: "Title of the new section? Choose 'Other' to type it."
      Options: 2 suggested titles that fit the document (derived from the
@@ -238,7 +177,7 @@ menus below, in the same turn. Never stop after the first choice.
 2. Insert it, tag it `[user-added]`, re-display the outline, reopen the
    Outline menu.
 
-#### Follow-up C: "Remove a section"
+**If "Remove sections":**
 1. Call `AskUserQuestion` header `Remove`, multiSelect true: "Which sections
    do you want to remove?" List the section titles (use paging if more than 4
    sections: `Next page` option). The user can also type numbers or titles
@@ -248,44 +187,73 @@ menus below, in the same turn. Never stop after the first choice.
    - No, keep them
 3. Apply, re-display the outline, reopen the Outline menu.
 
-#### Reordering
-If the user types a reorder instruction in "Other" (or selects it), apply it
-and re-display the outline. If the instruction is unclear, ask via a menu which
-section to move and where.
+#### Follow-up D: "Reorder"
+1. Call `AskUserQuestion` header `Move`: "Which section do you want to move?"
+   List the section titles as options (paging with `Next page` / `Previous page`
+   if more than 4 sections). The user can also type the section number via "Other".
+2. Call `AskUserQuestion` header `Where`: "Where should '<title>' go?"
+   - To the top: first position
+   - To the bottom: last position
+   - Up one: swap with the previous section
+   - Down one: swap with the next section
+3. If the user needs a precise position (e.g. "after section 5"), they choose
+   "Other" and type it. Interpret: "after 5", "position 3", "before <title>".
+4. Apply the move, renumber the outline, re-display it in full, then call
+   `AskUserQuestion` header `Again`: "Move another section?"
+   - Yes: move another one (go back to step 1)
+   - No: back to the outline menu
+5. If the instruction is unclear, ask again via a menu. Never guess.
 
-#### Conflict check (before applying any user edit)
-- If the edit contradicts a registered user document, call `AskUserQuestion`
-  header `Conflict`: "This change goes against <document>. What do you want to do?"
-  - Keep my change
-  - Follow the document
-  - Cancel the change
-- In strict mode, if a new or edited section has no source in the user
-  documents, call `AskUserQuestion` header `Strict`: "This section has no
-  source in your documents (strict mode is on). What do you want to do?"
-  - Add it anyway (tag as user-added)
-  - Provide a source document
-  - Cancel the change
+### Conflict check
+Before applying any outline edit, compare it with the Source Registry.
+If the edit contradicts a user document (or, in strict mode, has no source),
+call `AskUserQuestion` header `Conflict`:
+"This edit contradicts <document> / has no source in your documents. What do
+you want to do?"
+- Apply anyway: your instruction wins
+- Cancel the edit: keep the document's version
+- Update the plan to match the document
 
-### Step 4 - Lock
-Once approved, the outline is the contract. Writing must match it exactly.
-If you later discover a needed change (missing data, impossible section), STOP
-and propose the outline change to the user instead of deviating silently.
+### Lock
+Once approved, the outline is locked. During generation, never add, remove or
+rename a section without asking the user first through a menu.
 
-## README rules
+## MENU INTERACTION RULES
 
-When no user template exists and the mode is Guided or Free, with style Modern
-or Showcase:
-- Do NOT write the README from scratch. Copy `README-showcase.md` and replace
-  every `{{PLACEHOLDER}}`.
-- Keep the animated header, typing animation, badges, navigation bar, feature
-  grid, collapsible sections and footer, adapted to the approved outline
-  (the navigation bar must list exactly the approved sections).
-- Apply the chosen color palette to EVERY color placeholder.
+1. A menu choice is NEVER the end of an interaction. After any selection, you
+   MUST act on it immediately: apply the change or open the follow-up menu.
+2. NEVER answer with only "you selected X" or "OK, noted". Always continue
+   the flow.
+3. The `AskUserQuestion` tool has no free-text field. Free text is entered
+   through the automatic "Other" option. Always tell the user: "Choose 'Other'
+   to type it", and offer suggested options so the menu is useful.
+4. If the user closes a menu or answers nothing, call `AskUserQuestion` again
+   with header `Resume`:
+   - Resume the previous step
+   - Approve the outline as it is
+   - Cancel
+5. Maximum 4 options per question. Use paging when a list is longer.
 
-In strict mode these decorations are NOT added unless the user document uses them.
+## Generation
 
-## General rules
-- Never invent information. Mark unknowns with `TODO:`.
-- Never overwrite an existing README without reading it and proposing a backup
-  (`README.old.md`).
-- No generic filler content.
+After the outline is approved:
+
+- Write each document following the approved outline exactly (same order, same
+  titles).
+- Respect the strictness level (see above).
+- In Guided/Free modes, use [readme-showcase.md](readme-showcase.md) for design,
+  [adr-template.md](adr-template.md) for ADRs and
+  [diagram-guide.md](diagram-guide.md) for Mermaid diagrams, unless a user
+  document overrides them.
+- All documents in English.
+
+## Traceability check (before delivery)
+
+Build a table `section -> source (document or instruction)`. In strict mode,
+delete any section, sentence or element that has no source. In other modes,
+flag unsourced additions to the user in the final summary.
+
+## Delivery
+
+Finish with a short summary: files created or updated, sources used, any
+`[TODO: missing info]` left, and anything removed by the traceability check.
