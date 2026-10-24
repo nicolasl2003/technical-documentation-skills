@@ -73,11 +73,19 @@ Run every batch of [interview.md](interview.md) with `AskUserQuestion`.
 Collect: deliverable(s), source documents, strictness, visual style, audience,
 and anything else the interview asks.
 
+For source documents, NEVER ask the user to type a path. Run Batch 1b of
+`interview.md`: scan the project with `Glob`, then show the candidate files in
+a `multiSelect` `AskUserQuestion` menu. Typing is only a fallback through the
+built-in "Other" option.
+
 ### Phase 2 - Source Registry
-Read every document the user listed, completely. Build a Source Registry:
-for each document, the exact requirements it imposes (required sections, exact
-titles, exact sentences, order, constraints). These requirements override
-everything in this skill.
+Read every selected document, completely (PDFs included, page by page if
+needed). Build a Source Registry: for each document, the exact requirements it
+imposes (required sections, exact titles, exact sentences, order, constraints).
+These requirements override everything in this skill.
+
+If two documents contradict each other, do not choose silently: ask the user
+through `AskUserQuestion` which one wins.
 
 ### Phase 3 - Codebase analysis
 Only now, analyze the code (Glob, Grep, Read) to gather facts. Never invent:
