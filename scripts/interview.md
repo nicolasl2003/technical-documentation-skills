@@ -1,48 +1,91 @@
 # Interview Guide
 
-This interview is MANDATORY. Ask the questions in the user's language.
-Ask ONE batch at a time, wait for the answers, then move on.
-Present options as numbered or lettered lists so the user can answer quickly
-(e.g. "1b, 2a, 3 - the old wiki").
+This interview is MANDATORY and MUST use the `AskUserQuestion` tool so the user
+gets an interactive menu (arrow keys + Enter), not text questions.
 
-## Batch 1 - Goal and audience (ask this FIRST, alone)
+## Tool rules
+- 1 to 4 questions per `AskUserQuestion` call, each with 2 to 4 options.
+- The "Other" free-text option is added automatically by the tool: never add it
+  yourself. Free-text answers are how users give paths, URLs and edits.
+- Each option has a short `label` and a one-line `description`.
+- Use `multiSelect: true` when several answers can apply.
+- Use a short `header` (max 12 characters) per question.
+- Write labels, descriptions and questions in the user's language.
+- One call per batch. Wait for the answers before the next call.
+- If the user's message already answers a question, skip it.
 
-> Avant de commencer, quelques questions pour bien cadrer la documentation :
->
-> 1. **Livrable** : que voulez-vous produire ?
->    a) README  b) ADR  c) Diagrammes d'architecture  d) Tout
-> 2. **Public cible** : a) utilisateurs finaux  b) contributeurs  c) équipe interne
->    d) recruteurs / portfolio  e) communauté open source
-> 3. **Nouveau document ou mise à jour** d'un existant ?
+## Batch 1 - Goal and audience (FIRST call, alone)
 
-(Translate to the user's language. Never ask more than 5 questions per batch.)
+Call `AskUserQuestion` with these 3 questions:
 
-## Batch 2 - Existing sources
+1. header `Deliverable`, multiSelect true: "What do you want to produce?"
+   - README: project overview and usage
+   - ADR: record of an architecture decision
+   - Diagrams: architecture / sequence / data model
+   - Everything: README + diagrams + proposed ADRs
+2. header `Audience`, multiSelect true: "Who is this documentation for?"
+   - End users: people who use the project
+   - Contributors: developers working on it
+   - Internal team: colleagues, onboarding
+   - Public / portfolio: recruiters, open source community
+3. header `Mode`: "New document or update?"
+   - New: create from scratch
+   - Update: improve an existing document (it will be read first)
 
-> 4. Existe-t-il de la **documentation sur laquelle me baser** ? (ancien README,
->    wiki, Notion, specs, doc d'API, notes de réunion, tickets, liens)
->    Donnez-moi les chemins ou les URLs.
-> 5. Des **conventions à respecter** ? (template d'entreprise, ton, sections obligatoires)
-> 6. Des éléments à **ne pas** inclure ? (URLs internes, noms de clients, secrets)
+## Batch 2 - Reference documents (SECOND call, critical)
 
-## Batch 3 - Style (README only)
+1. header `Sources`: "Do you have documentation I must base myself on?"
+   - Yes, local files: I will give file or folder paths
+   - Yes, links: URLs (wiki, Notion, Confluence, specs)
+   - Both: files and links
+   - No: use the codebase only
 
-> 7. **Style visuel** :
->    a) Minimal : sobre et classique
->    b) Modern : badges, emojis, tableaux, sections repliables
->    c) Showcase : en-tête animé, texte qui s'écrit, dégradés, mise en page centrée
-> 8. **Couleur de marque** (code hex) ou souhaitez-vous que je choisisse une palette ?
->    Palettes proposées : a) violet/bleu  b) vert/cyan  c) orange/rouge  d) noir/blanc
-> 9. **Visuels** : avez-vous un logo, des captures d'écran ou un GIF de démo ?
->    (sinon je mets des emplacements marqués TODO)
+If the answer is not "No", ask a follow-up as plain text: "Give me the paths and/or
+URLs." Then READ ALL OF THEM before continuing and add them to the Source Registry.
+They override the skill defaults.
 
-## Batch 4 - Type-specific
-- **ADR**: What decision? Which options were considered? Constraints (budget,
-  deadline, team skills)? Who decided, and when?
-- **Diagrams**: Which view (global architecture, sequence of a flow, data model,
-  deployment)? Which level of detail?
+2. header `Conventions`: "Do your documents define a template or style rules?"
+   - Yes, strictly: follow their structure and tone exactly
+   - Partially: use them as inspiration, skill fills the gaps
+   - No: use the skill defaults
+
+3. header `Exclusions`: "Anything I must NOT include?"
+   - Internal URLs: private links and hostnames
+   - Client names: customer or partner names
+   - Secrets: keys, tokens, credentials
+   - Nothing: no restriction
+
+## Batch 3 - Style (README only, skip if a user template is enforced)
+
+1. header `Style`: "Which visual style for the README?"
+   - Minimal: plain and classic
+   - Modern: badges, emojis, tables, collapsible sections
+   - Showcase: animated header, typing text, gradients, centered layout
+2. header `Palette`: "Which color palette?"
+   - Purple / Blue: modern and tech
+   - Green / Cyan: fresh and dev-oriented
+   - Orange / Red: energetic and bold
+   - Custom: give me your hex color
+3. header `Visuals`: "What visuals do you have?"
+   - Logo: I have a logo file
+   - Screenshots / GIF: I have a demo
+   - Nothing yet: leave TODO placeholders
+
+## Batch 4 - Type-specific (only if relevant)
+- **ADR**: ask which decision, options considered, constraints, decision date
+  (use `AskUserQuestion` for choices, plain text for the decision title).
+- **Diagrams**: ask the view (global architecture / sequence / data model /
+  deployment) with `AskUserQuestion`, `multiSelect: true`.
 
 ## Recap (mandatory)
-Summarize all answers in 3 to 5 lines, then ask:
-"Je lance la génération avec ces paramètres ?"
-Only proceed after an explicit confirmation.
+
+Summarize in 3 to 5 lines: answers, the Source Registry (documents found) and
+the extracted "rules to follow". Then call `AskUserQuestion`:
+
+header `Confirm`: "Ready to build the outline with these settings?"
+- Continue to outline: show me the section plan
+- Modify: I want to change something
+- Cancel: stop here
+
+Proceed to the outline only on "Continue to outline". The interview does NOT
+lead directly to writing: the outline approval step comes next.
