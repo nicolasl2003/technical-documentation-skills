@@ -92,36 +92,123 @@ Only now, analyze the code (Glob, Grep, Read) to gather facts. Never invent:
 every statement in the documentation must come from the sources or the code.
 Verify names, defaults, commands and paths against the real files.
 
-### Phase 4 - Outline approval (required, editable)
-Build the outline from the Source Registry (Rule 1). Present it in the chat as:
+### Phase 4 - Outline approval (MANDATORY, editable, menu-driven)
+
+Never write the document before this phase is approved. Every step below uses
+`AskUserQuestion`. Never ask the user to describe a change in the chat.
+
+**Hard rules for this phase:**
+- ONE question per `AskUserQuestion` call. Never combine the plan validation
+  with any other question (project folder, missing info, etc.).
+- NEVER ask the user to "tell me in the chat" which section to change. Open the
+  next menu instead.
+- NEVER announce that something "will be marked as missing" or left as a
+  placeholder. If information is missing, ask for it in a separate, later menu
+  (Phase 5) or omit the detail.
+- After every change, redisplay the full outline before asking again.
+
+**Step 4.1 - Display the outline.**
+Print the outline in the chat, as a numbered list. For each section: the title
+in bold, then one line below describing what it will contain.
 
 ```
-1. <Section title>
-   Summary: <2-3 lines describing exactly what will be written>
-2. <Section title>
-   Summary: ...
+1. **Description**
+   Goal of the project and a short overview.
+2. **Instructions**
+   How to install and run the project.
 ```
 
-Then call `AskUserQuestion` with these options:
-- Approve the outline
-- Rename or edit a section
-- Add a section
-- Remove a section
-- Reorder sections
+**Step 4.2 - Validation menu.**
+Call `AskUserQuestion` with ONE question:
+- header `Outline`: "Do you approve this outline?"
+  - Approve and write
+  - Modify a section
+  - Add a section
+  - Remove a section
 
-**Menu interaction rules (critical):**
-- A menu choice alone is NEVER enough. After the user selects "Rename or edit",
-  "Add" or "Remove", immediately ask which section, using a new
-  `AskUserQuestion` whose options are the numbered section titles, then ask
-  what the new title or content should be.
-- Because a menu cannot take free text reliably, always include an "Other"
-  path: tell the user they can type the section name or the new text directly
-  in the chat, and wait for their reply.
-- NEVER answer "section selected" without acting on it. Always apply the
-  change, redisplay the updated outline, and ask for approval again.
-- In strict mode, refuse to add a section that is not in the source document,
-  and explain that strict mode forbids it. Offer to switch to flexible mode.
-- Loop until the user chooses "Approve the outline".
+Branch on the answer:
+- "Approve and write" goes to Phase 5.
+- "Modify a section", "Add a section", "Remove a section" go to Step 4.3.
+
+**Step 4.3 - Section picker (required, never skipped).**
+
+For "Modify a section" or "Remove a section":
+Call `AskUserQuestion` with ONE question listing the sections:
+- header `Section`: "Which section?"
+- Options: the section titles, 4 per page. If there are more than 4 sections,
+  add an option "Next sections" and repeat with the following ones. Keep going
+  until the user picks one.
+
+For "Add a section":
+Call `AskUserQuestion` with ONE question:
+- header `New section`: "Where do you want to add it?"
+  - At the end
+  - After a specific section
+  - At the beginning
+Then, if "After a specific section", show the section picker above.
+Then ask for the new section's title with a menu offering likely titles taken
+from the source documents and the codebase; "Other" lets the user type any title.
+
+**Step 4.4 - Change picker (required, never skipped).**
+
+For "Modify a section", call `AskUserQuestion` with ONE question:
+- header `Change`: "What do you want to change in '<section title>'?"
+  - Rename the title
+  - Change the content summary
+  - Move it up or down
+  - Both title and content
+
+Then for each chosen change, open ONE more menu:
+
+- **Rename the title**: call `AskUserQuestion` with:
+  header `New title`: "New title for '<section title>'?"
+  Options: 2 or 3 proposals based on the source documents (when they define a
+  title, include it as the first option and mark it "(from your document)"),
+  and the built-in "Other" for a custom title.
+
+- **Change the content summary**: call `AskUserQuestion` with:
+  header `Content`: "What should '<section title>' contain?"
+  Options: "Shorter", "More detailed", "Different focus", and the built-in
+  "Other" so the user can type the exact content in their own words.
+  If the user picked "Shorter", "More detailed" or "Different focus", ask ONE
+  follow-up menu with concrete proposals (for example the bullets that could be
+  removed, added, or the possible new focus), plus "Other".
+
+- **Move it up or down**: call `AskUserQuestion` with:
+  header `Position`: "Where should '<section title>' go?"
+  Options: "Move up one", "Move down one", "To the top", "To the bottom".
+
+For "Remove a section": call `AskUserQuestion` with:
+- header `Confirm removal`: "Remove '<section title>'?"
+  - Yes, remove it
+  - No, keep it
+In Strict mode, if the section is required by a source document, warn the user
+in the question description that the document requires it.
+
+**Step 4.5 - Apply and loop.**
+Apply the change to the outline, redisplay the whole outline (Step 4.1), then
+return to Step 4.2. Repeat until the user chooses "Approve and write".
+
+Edits to the outline never override a Strict-mode requirement silently. If the
+user removes a section the source document requires, apply it, but state it in
+one sentence in the chat after the change.
+
+### Phase 5 - Missing information (one menu per question)
+
+Only after the outline is approved. For each piece of information required by a
+section but absent from the codebase and the documents (logins, links, how AI
+was used, project-management folder...), ask ONE `AskUserQuestion` per item,
+never combined with another question.
+
+- If the user answers, use the answer.
+- If the user chooses to skip, omit that detail silently. NEVER write
+  "[TODO]", "missing", "to be completed" or a similar marker in the document,
+  and never warn about it in the document.
+
+Offer an action when relevant (example for a missing project-management
+folder): header `Project management`: "How do you want to handle the project
+management folder?" with options "I will give the folder name", "Create a
+minimal folder for me", "Skip this detail".
 
 ### Phase 5 - Writing
 Read the needed support files BEFORE writing:

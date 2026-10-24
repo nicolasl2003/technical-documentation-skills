@@ -134,3 +134,18 @@ interview NEVER leads directly to writing.
 - Never ask the user to type a file path when files can be listed in a menu.
 - Source documents are collected in the Source Registry and override every
   default of this skill.
+
+## Outline editing menus (Phase 4)
+
+The outline is edited ONLY through `AskUserQuestion`, one question per call.
+The full sequence is defined in SKILL.md, Phase 4. In short:
+
+1. `Outline` menu: Approve and write / Modify a section / Add a section / Remove a section
+2. `Section` menu: pick the section (paged by 4)
+3. `Change` menu: Rename the title / Change the content summary / Move / Both
+4. A last menu for the actual new value (title proposals, content proposals,
+   position), with the built-in "Other" for free text
+
+Never ask the user to type a change in the chat. Never put two of these
+questions in the same call. Never mix them with questions about missing
+information.
