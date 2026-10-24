@@ -34,11 +34,21 @@ A skill for coding agents that generates technical documentation from a real cod
 
 ## Installation and usage
 
-Copy the skill folder into the skills directory of your agent:
+Copy the skill folder into the skills directory of your agent.
+
+Mammouth Code:
 
 ```bash
 cp -r technical-documentation-skills ~/.config/mammouth/skills/
 ```
+
+Claude Code:
+
+```bash
+cp -r technical-documentation-skills ~/.claude/skills/
+```
+
+You can also ask the agent to install the skill itself: give it this repository and ask it to copy the `technical-documentation-skills` folder into its skills directory.
 
 Then trigger it from a project with a request such as:
 
